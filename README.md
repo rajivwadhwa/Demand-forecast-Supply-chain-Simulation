@@ -5,4 +5,6 @@ The purpose of this project is to develop a better understanding of the dynamics
 
 Basic Exponential smoothening method towards forecasts were also used here in each case ES1,2,3. 
 Ex. ES1 :- each firm collects data of its own customer orders, and each firm uses simple exponential smoothing to forecast mean future demand 
+
+
 F(t + 1): F(t + 1) := (1 − α)F(t) + αD(t) and O(t) = max {(L + 1)F(t + 1) − IP(t), 0}
