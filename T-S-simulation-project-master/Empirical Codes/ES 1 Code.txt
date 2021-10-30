@@ -1,0 +1,193 @@
+from pylab import *
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import statistics as stats
+import math
+
+
+### DEMAND FOR RETAILER ###
+# Initial Values
+lead_time = int(input("Lead Time"))
+              
+d = [10, 9, 12, 8, 11]
+demand = [0, d[0]]
+alpha = np.arange(0, 1, 0.01)
+use_alpha = alpha.tolist()
+#print(use_alpha)
+#Creating Total Demand
+for t in range(1, 500):
+  demand += d[1:]
+                        
+
+stdev_order_placed = []
+stdev_order_placed_w = []
+stdev_order_placed_d = []
+stdev_order_placed_m = []
+
+stdev_inventory_on_hand = []
+stdev_inventory_on_hand_w = []
+stdev_inventory_on_hand_d = []
+stdev_inventory_on_hand_m = []
+
+                     ###FOR RETAILER###
+for a in range(0, len(use_alpha)):
+  value_alpha = use_alpha[a]
+  forecast = [0, 10]
+  inventory_position_0 = 10 + 10 * lead_time
+  inventory_position_t = [inventory_position_0]
+  order_placed = [10]
+  inventory_on_hand = [10]   
+  
+  #Updating Forecast
+  for i in range(1, len(demand)):
+    f_next = (1 - value_alpha) * forecast[i] + value_alpha * demand[i]
+    forecast.append(f_next)
+
+  #Updating inventory position 
+    inven_pos = inventory_position_t[i-1] - demand[i] + order_placed[i-1]
+    inventory_position_t.append(inven_pos)
+
+ #Updating Order Quantity
+    to_order = max((lead_time+1)*forecast[i+1] - inventory_position_t[i], 0)
+    order_placed.append(to_order)
+
+  #Updating Inventory on hand
+    if i - lead_time - 1 >= 0 :
+        on_hand = inventory_on_hand[i-1] + order_placed[i-lead_time-1] - demand[i] 
+    else:
+       on_hand = inventory_on_hand[i-1] - demand[i] 
+    inventory_on_hand.append(on_hand)
+
+  #Updating Graph
+  stdev_retailer = stats.pstdev(order_placed[1000:2000])
+  stdev_order_placed.append(stdev_retailer)
+
+  stdev_retailer_inventory_on_hand = stats.pstdev(inventory_on_hand[1000:2000])
+  stdev_inventory_on_hand.append(stdev_retailer_inventory_on_hand)
+
+                    ### FOR WHOLESELLER ### 
+
+  forecast_w = [0, 10]
+  inventory_position_0_w = 10 + 10 * lead_time
+  inventory_position_t_w = [inventory_position_0_w]
+  order_placed_w = [10]
+  inventory_on_hand_w = [10]   
+  #Updating Forecast
+  for i in range(1, len(order_placed)):
+    f_next_w = (1 - value_alpha) * forecast_w[i] + value_alpha * order_placed[i]
+    forecast_w.append(f_next_w)
+
+  #Updating inventory position 
+    inven_pos_w = inventory_position_t_w[i-1] - order_placed[i] + order_placed_w[i-1]
+    inventory_position_t_w.append(inven_pos_w)
+
+  #Updating Order Quantity
+    to_order_w = max((lead_time+1)*forecast_w[i+1] - inventory_position_t_w[i], 0)
+    order_placed_w.append(to_order_w)
+ 
+  #Updating Inventory on hand
+    if i - lead_time - 1 >= 0 :
+        on_hand_w = inventory_on_hand_w[i-1] + order_placed_w[i-lead_time-1] - order_placed[i] 
+    else:
+       on_hand_w = inventory_on_hand_w[i-1] - order_placed[i] 
+    inventory_on_hand_w.append(on_hand_w)
+
+  #Updating Graph
+  stdev_wholeseller = stats.pstdev(order_placed_w[1000:2000])
+  stdev_order_placed_w.append(stdev_wholeseller)
+
+  stdev_wholeseller_inventory_on_hand = stats.pstdev(inventory_on_hand_w[1000:2000])
+  stdev_inventory_on_hand_w.append(stdev_wholeseller_inventory_on_hand)
+                   
+                    ### FOR DISTRIBUTOR ###
+
+
+  forecast_d = [0, 10]
+  inventory_position_0_d = 10 + 10 * lead_time
+  inventory_position_t_d = [inventory_position_0_d]
+  order_placed_d = [10]
+  inventory_on_hand_d = [10]   
+  #Updating Forecast
+  for i in range(1, len(order_placed_w)):
+    f_next_d = (1 - value_alpha) * forecast_d[i] + value_alpha * order_placed_w[i]
+    forecast_d.append(f_next_d)
+
+  #Updating inventory position 
+    inven_pos_d = inventory_position_t_d[i-1] - order_placed_w[i] + order_placed_d[i-1]
+    inventory_position_t_d.append(inven_pos_d)
+
+ #Updating Order Quantity
+    to_order_d = max((lead_time+1)*forecast_d[i+1] - inventory_position_t_d[i], 0)
+    order_placed_d.append(to_order_d)
+
+  #Updating Inventory on hand
+    if i - lead_time - 1 >= 0 :
+        on_hand_d = inventory_on_hand_d[i-1] + order_placed_d[i-lead_time-1] - order_placed_w[i] 
+    else:
+       on_hand_d = inventory_on_hand_d[i-1] - order_placed_w[i] 
+    inventory_on_hand_d.append(on_hand_d)
+
+  #Updating Graph
+  stdev_distributor = stats.pstdev(order_placed_d[1000:2000])
+  stdev_order_placed_d.append(stdev_distributor)
+
+  stdev_distributor_inventory_on_hand = stats.pstdev(inventory_on_hand_d[1000:2000])
+  stdev_inventory_on_hand_d.append(stdev_distributor_inventory_on_hand)
+
+                  ### FOR MANUFACTURER ###
+
+  forecast_m = [0, 10]
+  inventory_position_0_m = 10 + 10 * lead_time
+  inventory_position_t_m = [inventory_position_0_m]
+  order_placed_m = [10]
+  inventory_on_hand_m = [10]   
+  #Updating Forecast
+  for i in range(1, len(order_placed_d)):
+    f_next_m = (1 - value_alpha) * forecast_m[i] + value_alpha * order_placed_d[i]
+    forecast_m.append(f_next_m)
+
+  #Updating inventory position 
+    inven_pos_m = inventory_position_t_m[i-1] - order_placed_d[i] + order_placed_m[i-1]
+    inventory_position_t_m.append(inven_pos_m)
+
+ #Updating Order Quantity
+    to_order_m = max((lead_time+1)*forecast_m[i+1] - inventory_position_t_m[i], 0)
+    order_placed_m.append(to_order_m)
+
+  #Updating Inventory on hand
+    if i - lead_time - 1 >= 0 :
+        on_hand_m = inventory_on_hand_m[i-1] + order_placed_m[i-lead_time-1] - order_placed_d[i] 
+    else:
+       on_hand_m = inventory_on_hand_m[i-1] - order_placed_d[i] 
+    inventory_on_hand_m.append(on_hand_m)
+
+  #Updating Graph
+  stdev_manufacture = stats.pstdev(order_placed_m[1000:2000])
+  stdev_order_placed_m.append(stdev_manufacture)
+
+  stdev_manufacture_inventory_on_hand = stats.pstdev(inventory_on_hand_m[1000:2000])
+  stdev_inventory_on_hand_m.append(stdev_manufacture_inventory_on_hand)
+
+
+
+
+  #Plotting Order Quantity Graph of all firms
+plt.plot(use_alpha,stdev_order_placed)
+plt.plot(use_alpha,stdev_order_placed_w)
+plt.plot(use_alpha,stdev_order_placed_d)
+plt.plot(use_alpha,stdev_order_placed_m)
+
+  #Plotting Inventory on Hand Graph of all firms
+
+# plt.plot(use_alpha,stdev_inventory_on_hand)
+# plt.plot(use_alpha, stdev_inventory_on_hand_w)
+# plt.plot(use_alpha,stdev_inventory_on_hand_d)
+# plt.plot(use_alpha,stdev_inventory_on_hand_m)
+
+
+plt.title("ES1, Alpha vs Order Quantity (L=0)")
+plt.xlabel("alpha")
+plt.ylabel("stdev order quantity")
+
+
